@@ -9,7 +9,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -17,7 +19,8 @@ public class Janela extends JFrame implements ActionListener{
     //Atributos
         private JPanel pnDados, pnBotoes, pnToken;
         private JTextArea taToken;
-        private JTextField tfUser, tfSenha, tfUrl;
+        private JTextField tfUser, tfUrl;
+        private JPasswordField tfSenha;
         private JLabel lbUser, lbSenha, lbUrl;
         private JButton btLogin;
         private Container tela;
@@ -47,7 +50,7 @@ public class Janela extends JFrame implements ActionListener{
         lbUrl = new JLabel("URL:");
         
         tfUser = new JTextField(20);
-        tfSenha = new JTextField(20);
+        tfSenha = new JPasswordField(20);
         tfUrl = new JTextField(50);
         
         taToken = new JTextArea("", 10, 10);
@@ -67,16 +70,22 @@ public class Janela extends JFrame implements ActionListener{
         pnBotoes.setLayout(new GridLayout(1,1));
         pnBotoes.add(btLogin);
         
+    //Adicionando um listener no botão
+        btLogin.addActionListener(this);
+   
     //Configurações iniciais de janela
             this.setTitle("CMJ");
-            this.setSize(700, 350);
+            this.setSize(350, 150);
             this.setLocationRelativeTo(null);
             this.setDefaultCloseOperation(EXIT_ON_CLOSE);
             this.setVisible(true);
     }
 
     @Override
-    public void actionPerformed(ActionEvent ae) {
-        
+    public void actionPerformed(ActionEvent e) {
+        //Adicionando um Action Listener em login
+            if(e.getSource()==btLogin){
+                JOptionPane.showMessageDialog(this, "Você clicou em login", "login", JOptionPane.INFORMATION_MESSAGE);
+            }
     }
 }
