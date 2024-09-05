@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class Janela extends JFrame implements ActionListener{
     //Atributos
         private JPanel pnDados, pnBotoes, pnToken;
-        private JTextArea taToken;
+        private JTextArea taResponse;
         private JTextField tfUser, tfUrl;
         private JPasswordField tfSenha;
         private JLabel lbUser, lbSenha, lbUrl;
@@ -74,7 +74,7 @@ public class Janela extends JFrame implements ActionListener{
         tfUrl.setEditable(true);
         
      //Definindo a área de texto com o token
-        taToken = new JTextArea(300,300);
+        taResponse = new JTextArea(300,300);
         
      //Criando o botão de login e de get
         btLogin = new JButton("Login");
@@ -91,7 +91,7 @@ public class Janela extends JFrame implements ActionListener{
         
     //Adicionando o painel da text area para o token
         pnToken.setLayout(new GridLayout(1,1));
-        pnToken.add(taToken);
+        pnToken.add(taResponse);
     
     //Adicionando os botões ao painel
         pnBotoes.setLayout(new GridLayout(1,2));
@@ -114,10 +114,13 @@ public class Janela extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         //Adicionando um Action Listener em login
             if(e.getSource()==btLogin){
+            //Limpa a tela toda vez que se clica no botão
+            taResponse.setText("");
+            //Carregando as variaveis que irão ser usadas
             String userString = tfUser.getText();
             String passwordString = new String(tfSenha.getPassword());
             String urlString = tfUrl.getText();
-                 try {
+                 try{
                         //Cria a URL e abre a conexão
                             URL url = new URL(urlString);
                             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -151,7 +154,7 @@ public class Janela extends JFrame implements ActionListener{
                         //Verifica se a resposta é HTTP OK, se for, modifica a text area
                             int responseCode = connection.getResponseCode();
                             if(responseCode == HttpURLConnection.HTTP_OK){
-                               taToken.setText(responseString);
+                               taResponse.setText(responseString);
                             }else{
                                 JOptionPane.showMessageDialog(this, "Erro no login: " + responseCode);
                             }
@@ -159,63 +162,66 @@ public class Janela extends JFrame implements ActionListener{
                        //Fecha a conexão
                             connection.disconnect();
 
-                        }catch(Exception ex){
+                 }catch(Exception ex){
                             ex.printStackTrace();
                             JOptionPane.showMessageDialog(this,"Erro ao tentar se conectar:" +ex.getMessage());
-                        }    
+                 }    
         }
             
              if(e.getSource()==btGet){
-                String userString = tfUser.getText();
-                String passwordString = new String(tfSenha.getPassword());;
-                String urlString = tfUrl.getText();
+                 //Limpa a tela toda vez que se clica no botão
+                    taResponse.setText("");
+                //Carregando as variaveis que irão ser usadas
+                    String userString = tfUser.getText();
+                    String passwordString = new String(tfSenha.getPassword());;
+                    String urlString = tfUrl.getText();
                 
-                try{
-                    //Cria a URL e abre a conexão
-                            URL url = new URL(urlString);
-                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    try{
+                        //Cria a URL e abre a conexão
+                                URL url = new URL(urlString);
+                                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 
                         //Configura a conexão para GET
-                            connection.setRequestMethod("GET");
-                            connection.setDoOutput(true);
-                            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                                connection.setRequestMethod("GET");
+                                connection.setDoOutput(true);
+                                connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
                         //Cria a string de parâmetros
-                            String params="username="+userString+"&password="+passwordString;
+                                String params="username="+userString+"&password="+passwordString;
 
                         //Envia os parâmetros
-                            OutputStream os = connection.getOutputStream();
-                            os.write(params.getBytes(StandardCharsets.UTF_8));
-                            os.flush();
-                            os.close();
+                                OutputStream os = connection.getOutputStream();
+                                os.write(params.getBytes(StandardCharsets.UTF_8));
+                                os.flush();
+                                os.close();
 
                         //Armazena a resposta em uma string 
-                            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                            String inputLine;
-                            StringBuilder response = new StringBuilder();
+                                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                                String inputLine;
+                                StringBuilder response = new StringBuilder();
                                 while((inputLine=in.readLine())!=null){
                                     response.append(inputLine);
                                 }
-                            in.close();
+                                in.close();
                 
                         //Adicionando a resposta a variavel que armazena a resposta     
-                            responseString = response.toString();
+                                responseString = response.toString();
                 
                         //Verifica se a resposta é HTTP OK, se for, modifica a text area
-                            int responseCode = connection.getResponseCode();
-                            if(responseCode == HttpURLConnection.HTTP_OK){
-                               taToken.setText(responseString);
-                            }else{
-                                JOptionPane.showMessageDialog(this, "Erro no login: " + responseCode);
-                            }
+                                int responseCode = connection.getResponseCode();
+                                if(responseCode == HttpURLConnection.HTTP_OK){
+                                    taResponse.setText(responseString);
+                                }else{
+                                    JOptionPane.showMessageDialog(this, "Erro no login: " + responseCode);
+                                }
                             
                        //Fecha a conexão
-                            connection.disconnect();
+                                connection.disconnect();
 
-                }catch(Exception ex){
+                 }catch(Exception ex){
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(this,"Erro ao tentar se conectar:" +ex.getMessage());
-                }
+                 }
              }
             
     }
