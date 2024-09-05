@@ -35,13 +35,13 @@ public class Janela extends JFrame implements ActionListener{
         private JPasswordField tfSenha;
         private JLabel lbUser, lbSenha, lbUrl;
         private JButton btLogin, btGet;
-        private String urlString, userString,passwordString,tokenString;
+        private String urlString, userString,passwordString,responseString;
         private Container tela;
     
     Janela(){
       //Carregando a URL string e a token string
         urlString = "https://www.jatai.go.leg.br/api/auth/token";
-        tokenString = "";
+        responseString = "";
         
      //Configuração de container
         tela = this.getContentPane();
@@ -136,7 +136,7 @@ public class Janela extends JFrame implements ActionListener{
                             os.flush();
                             os.close();
 
-                        //Lê a resposta
+                        //Armazena a resposta em uma string 
                             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                             String inputLine;
                             StringBuilder response = new StringBuilder();
@@ -146,12 +146,12 @@ public class Janela extends JFrame implements ActionListener{
                             in.close();
                 
                         //Adicionando a resposta a variavel que armazena o token     
-                            tokenString = response.toString();
+                            responseString = response.toString();
                 
-                        //Verifica se a resposta é HTTP OK
+                        //Verifica se a resposta é HTTP OK, se for, modifica a text area
                             int responseCode = connection.getResponseCode();
                             if(responseCode == HttpURLConnection.HTTP_OK){
-                               taToken.setText(tokenString);
+                               taToken.setText(responseString);
                             }else{
                                 JOptionPane.showMessageDialog(this, "Erro no login: " + responseCode);
                             }
@@ -167,14 +167,54 @@ public class Janela extends JFrame implements ActionListener{
             
              if(e.getSource()==btGet){
                 String userString = tfUser.getText();
-                String passwordString = tokenString;
+                String passwordString = new String(tfSenha.getPassword());;
                 String urlString = tfUrl.getText();
                 
                 try{
-                    
+                    //Cria a URL e abre a conexão
+                            URL url = new URL(urlString);
+                            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                
+                        //Configura a conexão para GET
+                            connection.setRequestMethod("GET");
+                            connection.setDoOutput(true);
+                            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+                        //Cria a string de parâmetros
+                            String params="username="+userString+"&password="+passwordString;
+
+                        //Envia os parâmetros
+                            OutputStream os = connection.getOutputStream();
+                            os.write(params.getBytes(StandardCharsets.UTF_8));
+                            os.flush();
+                            os.close();
+
+                        //Armazena a resposta em uma string 
+                            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                            String inputLine;
+                            StringBuilder response = new StringBuilder();
+                                while((inputLine=in.readLine())!=null){
+                                    response.append(inputLine);
+                                }
+                            in.close();
+                
+                        //Adicionando a resposta a variavel que armazena a resposta     
+                            responseString = response.toString();
+                
+                        //Verifica se a resposta é HTTP OK, se for, modifica a text area
+                            int responseCode = connection.getResponseCode();
+                            if(responseCode == HttpURLConnection.HTTP_OK){
+                               taToken.setText(responseString);
+                            }else{
+                                JOptionPane.showMessageDialog(this, "Erro no login: " + responseCode);
+                            }
+                            
+                       //Fecha a conexão
+                            connection.disconnect();
 
                 }catch(Exception ex){
-                    
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this,"Erro ao tentar se conectar:" +ex.getMessage());
                 }
              }
             
